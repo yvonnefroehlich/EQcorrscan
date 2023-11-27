@@ -1281,8 +1281,11 @@ def noise_plot(signal, noise, normalise=False, **kwargs):
 
 
 @additional_docstring(plotting_kwargs=plotting_kwargs)
-def pretty_template_plot(template, background=False, event=False,
-                         sort_by="distance", **kwargs):
+def pretty_template_plot(template, background=False,
+                         event=False, sort_by="distance",
+                         streamcolour="k", templatecolour="y",
+                         ppickcolour="b", spickcolour="r",
+                         unknownpickcolour="darkgray", **kwargs):
     """
     Plot of a single template, possibly within background data.
 
@@ -1299,6 +1302,11 @@ def pretty_template_plot(template, background=False, event=False,
     :type sort_by: string
     :param sort_by:
         "distance" (default) or "pick_time" (not relevant if no event supplied)
+    :param streamcolour: line colour used for the stream. Default is black.
+    :param templatecolour: line colour used for template. Default is yellow.
+    :param ppickcolour: line colour used for P-picks. Default is blue.
+    :param spickcolour: line colour used for S-picks. Default is red.
+    :param unknownpickcolour: line colour used for unknown picks. Default is darkgray.
     {plotting_kwargs}
 
     :returns: :class:`matplotlib.figure.Figure`
@@ -1393,15 +1401,15 @@ def pretty_template_plot(template, background=False, event=False,
             by = btr.data
             bx = np.linspace(0, (len(by) - 1) * btr.stats.delta, len(by))
             bx += bdelay
-            axis.plot(bx, by, 'k', linewidth=1)
-            template_line, = axis.plot(x, y, 'r', linewidth=1.1,
+            axis.plot(bx, by, streamcolour, linewidth=1)
+            template_line, = axis.plot(x, y, templatecolour, linewidth=1.1,
                                        label='Template')
             if i == 0:
                 lines.append(template_line)
                 labels.append('Template')
             lengths.append(max(bx[-1], x[-1]))
         else:
-            template_line, = axis.plot(x, y, 'k', linewidth=1.1,
+            template_line, = axis.plot(x, y, templatecolour, linewidth=1.1,
                                        label='Template')
             if i == 0:
                 lines.append(template_line)
@@ -1420,16 +1428,16 @@ def pretty_template_plot(template, background=False, event=False,
                         tr.stats.channel[0] + tr.stats.channel[-1]]
             for pick in tr_picks:
                 if not pick.phase_hint:
-                    pcolor = 'k'
+                    pcolor = unknownpickcolour
                     label = 'Unknown pick'
                 elif 'P' in pick.phase_hint.upper():
-                    pcolor = 'red'
+                    pcolor = ppickcolour
                     label = 'P-pick'
                 elif 'S' in pick.phase_hint.upper():
-                    pcolor = 'blue'
+                    pcolor = spickcolour
                     label = 'S-pick'
                 else:
-                    pcolor = 'k'
+                    pcolor = unknownpickcolour
                     label = 'Unknown pick'
                 pdelay = pick.time - mintime
                 # print(pdelay)
@@ -1463,7 +1471,11 @@ def pretty_template_plot(template, background=False, event=False,
 
 
 @additional_docstring(plotting_kwargs=plotting_kwargs)
-def plot_repicked(template, picks, det_stream, **kwargs):
+def plot_repicked(template, picks, det_stream,
+                  streamcolour="k", templatecolour="y",
+                  ppickcolour="b", spickcolour="r",
+                  unknownpickcolour="darkgray",
+                  **kwargs):
     """
     Plot a template over a detected stream, with picks corrected by lag-calc.
 
@@ -1477,6 +1489,11 @@ def plot_repicked(template, picks, det_stream, **kwargs):
     :param det_stream: Stream to plot in the background, should be the \
         detection, data should encompass the time the picks are made.
     :type det_stream: obspy.core.stream.Stream
+    :param streamcolour: line colour used for the stream. Default is black.
+    :param templatecolour: line colour used for template. Default is yellow.
+    :param ppickcolour: line colour used for P-picks. Default is blue.
+    :param spickcolour: line colour used for S-picks. Default is red.
+    :param unknownpickcolour: line colour used for unknown picks. Default is darkgray.
     {plotting_kwargs}
 
     :return: Figure handle which can be edited.
@@ -1533,21 +1550,21 @@ def plot_repicked(template, picks, det_stream, **kwargs):
             by = by / max(by)
         bx = np.linspace(0, (len(by) - 1) * btr.stats.delta, len(by))
         bx += bdelay
-        axis.plot(bx, by, 'k', linewidth=1.5)
+        axis.plot(bx, by, streamcolour, linewidth=1.5)
         if len(tr_picks) > 0:
             template_line, = axis.plot(
-                x, y, 'r', linewidth=1.6, label='Template')
+                x, y, templatecolour, linewidth=1.6, label='Template')
             if not pick.phase_hint:
-                pcolor = 'k'
+                pcolor = unknownpickcolour
                 label = 'Unknown pick'
             elif 'P' in pick.phase_hint.upper():
-                pcolor = 'red'
+                pcolor = ppickcolour
                 label = 'P-pick'
             elif 'S' in pick.phase_hint.upper():
-                pcolor = 'blue'
+                pcolor = spickcolour
                 label = 'S-pick'
             else:
-                pcolor = 'k'
+                pcolor = unknownpickcolour
                 label = 'Unknown pick'
             pdelay = pick.time - mintime
             line = axis.axvline(x=pdelay, color=pcolor, linewidth=2,
